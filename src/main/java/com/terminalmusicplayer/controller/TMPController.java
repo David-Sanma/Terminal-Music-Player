@@ -35,7 +35,7 @@ public class TMPController  {
     }
     
     
-    public synchronized void playSoundThread(final AudioInputStream ais) {
+    public void playSoundThread(final AudioInputStream ais) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -43,6 +43,17 @@ public class TMPController  {
                     Clip clip = AudioSystem.getClip();
                     clip.open(ais);
                     clip.start();
+                    //clip.loop(Clip.LOOP_CONTINUOUSLY); // CREAR UN BUCLE INFINITO.
+//                    System.out.println(clip.isRunning());
+                    while(!clip.isRunning()) { // LAS PARADAS DE LOS BUCLES SON OPCIONALES.
+                        Thread.sleep(10); // Mientras el clip se esté reproduciendo ir haciendo pausas antes de cerrarlo.
+                    }
+//                    System.out.println(clip.isRunning());
+                    while(clip.isRunning()) {
+                        Thread.sleep(10);
+                    }
+                    clip.close();
+                    ais.close();
 //                    for(int i = 0; i < 3; i ++) {
 //                        System.out.println("ADIOS");
 //                    }
@@ -50,6 +61,8 @@ public class TMPController  {
                     System.out.println("ERROR: Input error.");
                 } catch(LineUnavailableException lue) {
                     System.out.println("ERROR: Exception line.");
+                } catch(InterruptedException ie) {
+                    ie.printStackTrace();
                 }   
             }
         }).start(); 
