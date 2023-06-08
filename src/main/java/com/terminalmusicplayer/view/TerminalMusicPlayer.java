@@ -11,8 +11,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.File;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
 
 /**
  *
@@ -26,20 +24,25 @@ public class TerminalMusicPlayer {
         File fileSong = null;
         System.out.println("SANMA MUSIC PLAYER!");
         JFileChooser openFileDialog = new JFileChooser();
+        openFileDialog.setDialogTitle("Open *.wav file");
         do { // Control de entrada de datos.
             if(openFileDialog.showOpenDialog(openFileDialog) != 1) {
                 fileSong = openFileDialog.getSelectedFile();
-                fileName = fileSong.getName();
+                fileName = fileSong.getName(); // Sí, devuelve solo el nombre y no la ruta completa.
+                //System.out.println(fileName); 
                 if(!fileSong.exists()) {
+                    System.out.println("ERROR: The file doesn't exists.");
                     JOptionPane.showMessageDialog(openFileDialog, "ERROR: The file doesn't exists.", "ERROR", 0);
                     //En el método showMessageDialog(), en el parámetro "parentComponent" se le puede poner un null y también funciona 
                     //(En el caso de que no haya un componente "padre" como aquí es el caso del openFileDialog).
                     fileName = "";
                 } else if(!fileName.endsWith(".wav")) { 
+                    System.out.println("ERROR: Incorrect format.");
                     JOptionPane.showMessageDialog(openFileDialog, "ERROR: Incorrect format.", "ERROR", 0);
                     fileName = "";
                 }
             } else {
+                System.out.println("Operation cancelled.");
                 JOptionPane.showMessageDialog(openFileDialog, "Operation cancelled.", "Operation cancelled", 0);
                 fileName = ""; 
                 int option = JOptionPane.showConfirmDialog(openFileDialog, "Do you want to close the program?", "Select an Option", JOptionPane.OK_CANCEL_OPTION);
@@ -48,22 +51,22 @@ public class TerminalMusicPlayer {
         } while(!fileName.endsWith(".wav") && !fileName.equals(CANCEL_OPERATION));
         if(!fileName.equals(CANCEL_OPERATION)) {
             try {
-                AudioInputStream ais = AudioSystem.getAudioInputStream(fileSong.getAbsoluteFile());
+                AudioInputStream ais = AudioSystem.getAudioInputStream(fileSong);
                 TMPController controller = new TMPController(fileName, ais.getFormat().toString());
                 controller.playSoundThread(ais);
                 // AL HACER EL TEST, PRIMERO SALE EL "HOLA" Y DESPUÉS EL "ADIÓS" 
                 //(QUE ES EL QUE ESTÁ EN EL HILO LLAMADO EN LA LÍNEA controller.playSoundThread(ais)),
                 // ESTO DEMUESTRA QUE EL THREAD FUNCIONA, SI NO PRIMERO IRÍA EL "ADIOS" Y DESPUÉS EL "HOLA".
-    //            for(int i = 0; i < 3; i ++) { 
-    //                System.out.println("HOLA");
-    //            }
+//                for(int i = 0; i < 3; i ++) { 
+//                    System.out.println("HOLA");
+//                }
             } catch(UnsupportedAudioFileException uafe) {
                 System.out.println("ERROR: Unsupported song file.");        
-            }   catch(IOException ioe) {
+            } catch(IOException ioe) {
                 System.out.println("ERROR: Input error.");
-            }   
+            }
         } else {
-            System.out.println("SE HA CERRADO EL PROGRAMA");
+            System.out.println("THE PROGRAM HAS BEEN CLOSED");
         }      
     }
 }
